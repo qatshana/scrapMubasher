@@ -2,14 +2,34 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import json
 
-f=open('tadawulHTML.html','r')
+from selenium import webdriver
+from time import sleep
+import io
+
+
+
+'''
+fRead='test2.html'
+f=open(fRead,'r')
 
 data=f.read()
 
+f.close()
+
+
 soup = BeautifulSoup(data,'html')
 
+'''
 
-def readHteml(group):	
+
+def readFile(fname):
+	with open(fname,'r') as fr:
+		data=fr.read()	
+	soup = BeautifulSoup(data)
+	return soup	
+
+def readHteml(group,soup):	
+	
 
 	Lmod=[]
 	rowsGeneral= soup.findAll('tr', {'class': group})
@@ -19,10 +39,11 @@ def readHteml(group):
 	return (Lmod)	
 
 
-def getDFStockPrices(groups):
+def getDFStockPrices(groups,fname):
+	soup=readFile(fname)
 	stockList=[]
 	for group in groups:
-		stockList.append(readHteml(group))
+		stockList.append(readHteml(group,soup))
 	data=[]
 	for group in stockList:
 		for line in group:
@@ -30,7 +51,7 @@ def getDFStockPrices(groups):
 	stockPrices=pd.DataFrame(data)	
 	return stockPrices
 
-def getDfStockPricesAll():
+def getDfStockPricesAll(fname):
 	groups=["odd group-item group-item-energy","even group-item group-item-energy",\
 		"odd group-item group-item-materials","even group-item group-item-materials",\
 		"odd group-item group-item-capital-goods","even group-item group-item-capital-goods",\
@@ -51,15 +72,29 @@ def getDfStockPricesAll():
 		"odd group-item group-item-utilities","even group-item group-item-utilities",\
 		"odd group-item group-item-reits","even group-item group-item-reits",\
 		"odd group-item group-item-real-estate-mgmt-amp-dev-t","even group-item group-item-real-estate-mgmt-amp-dev-t"]
-	return getDFStockPrices(groups)
+	return getDFStockPrices(groups,fname)
 
 
-def genStockCsc(file):
-	df=getDfStockPricesAll()
+def genStockCsc(file,fr):
+	df=getDfStockPricesAll(fr)
 	with open(file,'w') as fw:
 		df.to_csv(fw,index=False)		
 
 
+
+def dowloadTasiStocks(fname):
+	ur='https://www.tadawul.com.sa/wps/portal/tadawul/markets/equities/market-watch'
+	browser=webdriver.Firefox(executable_path=r'C:\Users\aqatshan\geckodriver.exe')
+	browser.get(ur)
+	sleep(10)
+	data=browser.page_source
+	browser.close()
+	with io.open(fname, "w", encoding="utf-8") as f:
+	    f.write(data)
+
 if __name__ == "__main__":
-	file="stocks2.csv"
-	genStockCsc(file)
+	#fname='test2.html'
+	#dowloadTasiStocks(fname)
+	fr='test2.html'
+	file="stocks6.csv"
+	genStockCsc(file,fr)
