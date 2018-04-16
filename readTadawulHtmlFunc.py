@@ -6,6 +6,8 @@ from selenium import webdriver
 from time import sleep
 import io
 
+from datetime import datetime
+
 
 
 '''
@@ -123,9 +125,13 @@ def saveJsonStockFile(fname,data):
 if __name__ == "__main__":
 	#fname='test2.html'
 	#dowloadTasiStocks(fname)
-	fr='test2.html'
-	file="stocks6.csv"
+	fr='test.html'
+
+	date=str(datetime.now().date())
+
+	file='TASI-'+date+'.csv'
 	genStockCsc(file,fr)
+
 
 	d3=genJsonStock(file)
 
@@ -133,4 +139,7 @@ if __name__ == "__main__":
 
 	#saveJsonStockFile(fnameJson,d3)
 
-	#print(d3['Aldrees'])
+
+	print(d3['samba'])
+
+
