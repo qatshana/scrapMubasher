@@ -92,9 +92,45 @@ def dowloadTasiStocks(fname):
 	with io.open(fname, "w", encoding="utf-8") as f:
 	    f.write(data)
 
+
+def genJsonStock(fname):
+	df2=pd.read_csv(fname)
+	df2.drop(['1'],axis=1,inplace=True)
+	df2.set_index(df2['0'],inplace=True)
+	df2.drop(['0'],axis=1,inplace=True)
+	col=['Price','Trades','Change Abs','Change %','No of Trades','Total Shares','Open','Last Trade','Close']
+	df2.columns=col
+	m='Trades'
+	df2[m]= df2[m].str.replace(',', '')
+	m='No of Trades'
+	df2[m]= df2[m].str.replace(',', '')
+	m='Total Shares'
+	df2[m]= df2[m].str.replace(',', '')
+	m='Last Trade'
+	df2[m]= df2[m].str.replace(',', '')
+	df2=df2.astype('float')
+	d3={}
+	for c in df2.index:
+	    d1=dict(df2.loc[c])
+	    d2=dict([(c,d1)])
+	    d3.update(d2)
+	return d3
+def saveJsonStockFile(fname,data):
+	with open(fname,'w') as fw:
+		dataJson=json.dumps(data)
+		fw.write(dataJson)
+
 if __name__ == "__main__":
 	#fname='test2.html'
 	#dowloadTasiStocks(fname)
 	fr='test2.html'
 	file="stocks6.csv"
 	genStockCsc(file,fr)
+
+	d3=genJsonStock(file)
+
+	#fnameJson='stocks.json'
+
+	#saveJsonStockFile(fnameJson,d3)
+
+	#print(d3['Aldrees'])
