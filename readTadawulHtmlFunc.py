@@ -10,20 +10,6 @@ from datetime import datetime
 
 
 
-'''
-fRead='test2.html'
-f=open(fRead,'r')
-
-data=f.read()
-
-f.close()
-
-
-soup = BeautifulSoup(data,'html')
-
-'''
-
-
 def readFile(fname):
 	with open(fname,'r') as fr:
 		data=fr.read()	
@@ -86,7 +72,7 @@ def genStockCsc(file,fr):
 
 def dowloadTasiStocks(fname):
 	ur='https://www.tadawul.com.sa/wps/portal/tadawul/markets/equities/market-watch'
-	browser=webdriver.Firefox(executable_path=r'C:\Users\aqatshan\geckodriver.exe')
+	browser=webdriver.Firefox(executable_path=r'C:\Users\qatsh\geckodriver.exe')
 	browser.get(ur)
 	sleep(10)
 	data=browser.page_source
@@ -95,27 +81,54 @@ def dowloadTasiStocks(fname):
 	    f.write(data)
 
 
+def genDFStock(fname):
+	df2=pd.read_csv(fname)
+	df2.drop(['1'],axis=1,inplace=True)
+	df2.set_index(df2['0'],inplace=True)
+	df2.drop(['0'],axis=1,inplace=True)
+	col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol']
+	df2.columns=col
+	m='Last Trade Vol'
+	df2[m]= df2[m].str.replace(',', '')
+	m='No of Trades'
+	df2[m]= df2[m].str.replace(',', '')
+	m='Total Volume'
+	df2[m]= df2[m].str.replace(',', '')
+	m='Bid Vol'
+	df2[m]= df2[m].str.replace(',', '')
+	df2=df2.astype('float')
+	df2['score_ranked']=df2['Change %'].rank(ascending=1)
+	df2.sort_values('score_ranked', inplace=True)
+	return df2
+
 def genJsonStock(fname):
 	df2=pd.read_csv(fname)
 	df2.drop(['1'],axis=1,inplace=True)
 	df2.set_index(df2['0'],inplace=True)
 	df2.drop(['0'],axis=1,inplace=True)
-	col=['Price','Trades','Change Abs','Change %','No of Trades','Total Shares','Open','Last Trade','Close']
+	col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol']
 	df2.columns=col
-	m='Trades'
+	m='Last Trade Vol'
 	df2[m]= df2[m].str.replace(',', '')
 	m='No of Trades'
 	df2[m]= df2[m].str.replace(',', '')
-	m='Total Shares'
+	m='Total Volume'
 	df2[m]= df2[m].str.replace(',', '')
-	m='Last Trade'
+	m='Bid Vol'
 	df2[m]= df2[m].str.replace(',', '')
 	df2=df2.astype('float')
 	d3={}
-	for c in df2.index:
-	    d1=dict(df2.loc[c])
-	    d2=dict([(c,d1)])
-	    d3.update(d2)
+	status=True
+	for c in df2.index:		
+		d1=dict(df2.loc[c])
+		'''
+		if (c=='SCC' and status==True):
+			df.loc[c]
+			c='SCC1'
+			status=False
+		'''	
+		d2=dict([(c,d1)])
+		d3.update(d2)
 	return d3
 def saveJsonStockFile(fname,data):
 	with open(fname,'w') as fw:
@@ -123,10 +136,10 @@ def saveJsonStockFile(fname,data):
 		fw.write(dataJson)
 
 if __name__ == "__main__":
-	#fname='test2.html'
-	#dowloadTasiStocks(fname)
-	fr='test.html'
-
+	fname='test2.html'
+	dowloadTasiStocks(fname)
+	#fr='test.html'
+	fr=fname
 	date=str(datetime.now().date())
 
 	file='TASI-'+date+'.csv'
@@ -140,6 +153,7 @@ if __name__ == "__main__":
 	#saveJsonStockFile(fnameJson,d3)
 
 
-	print(d3['samba'])
-
+	#print(d3['samba'])
+	df4=genDFStock(file)
+	print(df4.head())
 
