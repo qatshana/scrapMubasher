@@ -7,8 +7,10 @@ from time import sleep
 import io
 
 from datetime import datetime
-
-
+# list of columns received ==> total is 9 columns
+col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol','Offer Price']
+# delay timer to allow for the browser to connect and download results in seconds
+delayTimer=20
 
 def readFile(fname):
 	with open(fname,'r') as fr:
@@ -74,7 +76,7 @@ def dowloadTasiStocks(fname):
 	ur='https://www.tadawul.com.sa/wps/portal/tadawul/markets/equities/market-watch'
 	browser=webdriver.Firefox(executable_path=r'C:\Users\qatsh\geckodriver.exe')
 	browser.get(ur)
-	sleep(10)
+	sleep(delayTimer)
 	data=browser.page_source
 	browser.close()
 	with io.open(fname, "w", encoding="utf-8") as f:
@@ -86,7 +88,7 @@ def genDFStock(fname):
 	df2.drop(['1'],axis=1,inplace=True)
 	df2.set_index(df2['0'],inplace=True)
 	df2.drop(['0'],axis=1,inplace=True)
-	col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol']
+	#col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol','Offer Price']
 	df2.columns=col
 	m='Last Trade Vol'
 	df2[m]= df2[m].str.replace(',', '')
@@ -106,7 +108,7 @@ def genJsonStock(fname):
 	df2.drop(['1'],axis=1,inplace=True)
 	df2.set_index(df2['0'],inplace=True)
 	df2.drop(['0'],axis=1,inplace=True)
-	col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol']
+	#col=['Close Price','Last Trade Vol','Change Value','Change %','No of Trades','Total Volume','Bid Price','Bid Vol']
 	df2.columns=col
 	m='Last Trade Vol'
 	df2[m]= df2[m].str.replace(',', '')
@@ -122,6 +124,9 @@ def genJsonStock(fname):
 	for c in df2.index:		
 		d1=dict(df2.loc[c])
 		'''
+		# there is dublicate ticker/row in Tadawul list which causes and issue when try to 
+		# generate json file. Can not get json file for now, try to rename the ticker after download
+
 		if (c=='SCC' and status==True):
 			df.loc[c]
 			c='SCC1'
@@ -136,13 +141,13 @@ def saveJsonStockFile(fname,data):
 		fw.write(dataJson)
 
 if __name__ == "__main__":
-	fname='test2.html'
+	fname='test2.html'  # name to downloaded html file
 	dowloadTasiStocks(fname)
 	#fr='test.html'
 	fr=fname
 	date=str(datetime.now().date())
 
-	file='TASI-'+date+'.csv'
+	file='TASI-'+date+'.csv'  # date stamp file generated (one file per day)
 	genStockCsc(file,fr)
 
 
@@ -154,6 +159,6 @@ if __name__ == "__main__":
 
 
 	#print(d3['samba'])
-	df4=genDFStock(file)
-	print(df4.head())
+	df4=genDFStock(file)   # get list in dataframe format and sort 
+	print(df4.head())	#print out top losers
 
