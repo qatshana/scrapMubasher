@@ -3,8 +3,9 @@ from time import sleep
 import io
 
 def dowloadTasiStocks(fname):
-	ur='https://www.tadawul.com.sa/wps/portal/tadawul/markets/equities/market-watch'
-	browser=webdriver.Firefox(executable_path=r'C:\Users\aqatshan\geckodriver.exe')
+	#ur='https://www.tadawul.com.sa/wps/portal/tadawul/markets/equities/market-watch'
+	ur='https://english.mubasher.info/markets/TDWL/stocks/1090/profile'
+	browser=webdriver.Firefox(executable_path=r'C:\Users\qatsh\geckodriver.exe')
 	browser.get(ur)
 	sleep(10)
 	data=browser.page_source
