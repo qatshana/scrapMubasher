@@ -23,7 +23,9 @@ def readFile2(fname):
 
 
 if __name__ == "__main__":
-	fname='profile.html'  # name to downloaded html file		
+	#fname='profile.html'  # name to downloaded html file	
+	ticker='4011'	
+	fname=ticker+'-Profile.html'
 	soup=readFile(fname)
 	val1='mi-section__title'
 	companyName=soup.find('h1', {'class': val1})
@@ -34,6 +36,7 @@ if __name__ == "__main__":
 	'''
 	val1='company-profile__general-information__text2'	
 	companyProfile=soup.findAll('span', {'class': val1})
+	
 	companyName=companyProfile[0].text
 	companyDescription=companyProfile[1].text
 	print (companyDescription)
@@ -68,12 +71,12 @@ if __name__ == "__main__":
 	names=[]
 	numbers=[]
 	for shareholder in shareholdersList:
-			name=shareholder.find('span')
-			
+			name=shareholder.find('span')			
 			number=shareholder.find('span', {'class': 'number'})
-			print(number.text)
-			names.append(name.text)
-			numbers.append(number.text)
+			if (number!=None):
+				print(number.text)
+				names.append(name.text)
+				numbers.append(number.text)
 	d4=dict([('Shareholder Name',names)])
 	d5=dict([('Shareholder Stake',numbers)])
 	d6={}
@@ -94,9 +97,10 @@ if __name__ == "__main__":
 	for manager in managementList:
 		mgrName=manager.find('span', {'class': 'company-profile__management__text1'})
 		mgrTitle=manager.find('span', {'class': 'company-profile__management__text2'})
-		print(mgrName.text,mgrTitle.text)
-		mgrNames.append(mgrName.text)
-		mgrTitles.append(mgrTitle.text)
+		if (mgrName!=None):
+			print(mgrName.text,mgrTitle.text)
+			mgrNames.append(mgrName.text)
+			mgrTitles.append(mgrTitle.text)
 
 	d8=dict([('Name',mgrNames)])
 	d9=dict([('Title',mgrTitles)])
@@ -112,7 +116,7 @@ if __name__ == "__main__":
 	dfinal.update(d11)
 	print (dfinal)
 	dfinalJson=json.dumps(dfinal)
-	fname="SAMBA-Desc.json"
+	fname=ticker+"-Desc.json"
 	with open(fname, "w") as fw:
 		fw.write(dfinalJson)
 	
@@ -120,7 +124,8 @@ if __name__ == "__main__":
 	'''
 	read stocks.html to get outstanding shares
 	'''	
-	fname='stock.html'  # name to downloaded html file		
+	#fname='stock.html'  # name to downloaded html file		
+	fname=ticker+'-Stock.html'
 	soup=readFile2(fname)
 	
 
@@ -134,14 +139,13 @@ if __name__ == "__main__":
 			print (itemName.text,itemValue.text)
 			d20.update(dict([(itemName.text,itemValue.text)]))
 	
-	val1='market-summary__last-price up-icon-only'
+	val1='market-summary__last-price'
 	closePrice=soup.find('div', {'class': val1}).text	
 	
 	d22=dict([('Close Price',closePrice)])
 	val1='market-summary__change-percentage'
-	priceChange=soup.find('div', {'class': val1}).text
-	d24=dict([('Price Change %',priceChange)])
-
+	priceChange=soup.find('div', {'class': val1})
+	d24=dict([('Price Change %',priceChange.text)])
 	d26=d22
 	d26.update(d24)
 	d26.update(d20)
@@ -149,6 +153,6 @@ if __name__ == "__main__":
 	dfinal.update(d26)
 
 	dfinalJson=json.dumps(dfinal)
-	fname="SAMBA-FullData.json"
+	fname=ticker+'-FullData.json'
 	with open(fname, "w") as fw:
 		fw.write(dfinalJson)		
